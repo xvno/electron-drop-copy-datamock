@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .dropzone {
+            min-height: 400px;
+            background-color: antiquewhite;
+            border: 1px solid #678628;
+        }
+    </style>
+</head>
+
+<body>
+    <p>
+        <label for="message">message: </label>
+        <input type="text" name="message" id="messageInput">
+        <input type="submit" value="Send" id="submit">
+    </p>
+    <p>
+        <label for="cmd">Commands</label>
+        <select name="cmd" id="cmdSelect">
+            <option value="watch">watch</option>
+            <option value="offwatch">offwatch</option>
+            <option value="trans">trans</option>
+            <option value="close">close</option>
+        </select>
+    </p>
+    <div class="dropzone" ondrop="dropHandler(event)" ondragover="ondragoverHandler(event)">
+
+    </div>
+    <!-- <script src="vendors/socket.io.js"></script> -->
+    <script>
+        const submit = document.querySelector('#submit');
+        const messageInput = document.querySelector('#messageInput');
+        const cmdSelect = document.querySelector('#cmdSelect');
+        submit.addEventListener('click', function (e) {
+            let msg = messageInput.value;
+            messageInput.value = '';
+            let cmd = cmdSelect.value;
+            send(create(cmd, {}, msg));
+            e.preventDefault();
+            return false;
+        });
+        const socket = new WebSocket('ws://localhost:3333/ws/1');
+        socket.onopen = function (event) {
+            socket.send(create('message', {}, 'Hello Server!'));
+        };
+        socket.onmessage = function (event) {
+            console.log('Message from server ', event.data);
+        }
+        function send(packet) {
+            console.log(packet);
+            socket.send(packet);
+        }
+
+        function create(cmd = 'message', opt, msg) {
+            let ret = Object.assign({}, { cmd: '', opt: {} }, { cmd, opt, msg });
+            return JSON.stringify(ret);
+        }
+
+        /*
+        * 初始化文件丢放区
+        *
+        */
+        function dropHandler(event) {
+            console.log('File(s) dropped');
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.dataTransfer.items) {
+                // Use DataTransferItemList interface to access the file(s)
+                for (var i = 0; i < event.dataTransfer.items.length; i++) {
+                    // If dropped items aren't files, reject them
+                    if (event.dataTransfer.items[i].kind === 'file') {
+                        console.log(event.dataTransfer.files[i]);
+                        var file = event.dataTransfer.items[i].getAsFile();
+                        console.log('... file[' + i + '].name = ' + file.name);
+                    }
+                }
+            } else {
+                // Use DataTransfer interface to access the file(s)
+                for (var i = 0; i < event.dataTransfer.files.length; i++) {
+                    console.log(event.dataTransfer.files[i]);
+                    console.log('... file[' + i + '].name = ' + event.dataTransfer.files[i].name);
+                }
+            }
+        }
+        function ondragoverHandler(event) {
+            console.log('File(s) in drop zone');
+
+            // Prevent default behavior (Prevent file from being opened)
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    </script>
+</body>
+
+</html>
