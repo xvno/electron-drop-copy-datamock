@@ -24,7 +24,7 @@ wsapp.ws.use(route.all('/ws', function (ctx) {
     let ws = ctx.websocket
     ws.watched = [];
     ws.send('\n\nConnected!');
-    let fileList = mockFileList();
+    ws.fileList = []; // || mockFileList();
     let msgObj = null;
     ws.on('message', function (message) {
         console.log('messaging....')
@@ -46,13 +46,17 @@ wsapp.ws.use(route.all('/ws', function (ctx) {
                     return {
                         uid: mockUID(),
                         origin: i.origin,
+                        name: i.name,
                         status: 0
                     }
-                }) || fileList;
+                })
+                ws.fileList = list
                 ret = {
                     cmd: 'upload',
                     data: {
-                        list
+                        list: list.map(item => {
+                            return Object.assign(item, { trxed: 0, total: 10000 * Math.random() });
+                        })
                     },
                     timestamp: Date.now(),
                     status: '请求成功',
@@ -65,7 +69,7 @@ wsapp.ws.use(route.all('/ws', function (ctx) {
                 ret = {
                     cmd: 'list',
                     data: {
-                        list: fileList
+                        list: ws.fileList
                     },
                     timestamp: Date.now(),
                     status: '请求成功',
@@ -78,17 +82,29 @@ wsapp.ws.use(route.all('/ws', function (ctx) {
                 // 遍历当前传输列表, 插入该项
                 var { list = [], interval = 500 } = msgObj && msgObj.opt;
                 console.log(list)
-                list.forEach(i => {
-                    console.log(i);
-                    let newFile = watched.find(w => w.origin === i.origin);
-                    if (!newFile) {
-                        newWatched.push(Object.assign(i, { trxed: 0, total: 10000 * Math.random() }))
-                    }
-                })
-                // console.log(newWatched);
-                ws.watched = watched.concat(newWatched)
+                if (list.length > 0) {
+                    let newFile = null;
+                    list.forEach(i => {
+                        console.log(i);
+                        newFile = watched.find(w => w.origin === i.origin);
+                        if (!newFile) {
+                            newWatched.push(Object.assign(i, { trxed: 0, total: 10000 * Math.random() }))
+                        }
+                    })
+                } else {
+                    ws.fileList.map(f => {
+                        if (f.trxed < f.total) {
+                            newWatched.push(Object.assign(f, { trxed: 0, total: 10000 * Math.random() }))
+                        }
+                    })
+                }
+                console.log('heya----------');
+                console.log(ws.fileList)
+                console.log(newWatched);
+                console.log('----------yahe');
+                ws.watched = newWatched; //watched.concat(newWatched)
                 // ws.watched = [...watched, ...newWatched];
-                initTrxQue(ws.watched, interval, ws, message)
+                initTrxQue(newWatched, interval, ws, message)
                 break;
             case 'offwatch':
                 console.log('offwatch');
@@ -173,20 +189,22 @@ function getProgress(i) {
 // }
 
 function initTrxQue(watchedFileList, interval, ws, message = '') {
+    console.log(watchedFileList);
     clearTimeout(ws.timer);
     ws.amt = watchedFileList.length || 0;
 
     if (ws.amt <= 0) {
         return null;
     }
-    ws.cnt = ws.cnt || 0;
+    ws.cnt = 0;
     heartBeat();
 
     function heartBeat() {
         ws.timer = setTimeout(function () {
             watchedFileList.map(f => {
-                let untrxed = f.total - f.trxed;
                 let percent = f.trxed / f.total;
+
+                let untrxed = f.total - f.trxed;
                 if (percent < 0.95) {
                     f.trxed += untrxed / 10
                 } else {
