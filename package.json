@@ -10,6 +10,7 @@
   "author": "vno <volving@icloud.com> (http://vno.io)",
   "license": "MIT",
   "dependencies": {
+    "@marsaud/smb2": "^0.14.0",
     "awesome-static": "^1.4.3",
     "koa-route": "^3.2.0",
     "koa-static": "^5.0.0",

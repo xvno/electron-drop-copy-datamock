@@ -3,6 +3,8 @@ const route = require('koa-route');
 const websockify = require('koa-websocket');
 // const io = require('socket.io')();
 const { mockUID, mockFileList } = require('./utils/mtools');
+const filewriter = require('./assets/filewriter');
+
 
 const app = new Koa();
 const static = require('koa-static');
@@ -23,7 +25,7 @@ wsapp.ws.use(function (ctx, next) {
 wsapp.ws.use(route.all('/ws', function (ctx) {
     let ws = ctx.websocket
     ws.watched = [];
-    ws.send('\n\nConnected!');
+    // ws.send('\n\nConnected!');
     ws.fileList = []; // || mockFileList();
     let msgObj = null;
     ws.on('message', function (message) {
@@ -41,6 +43,16 @@ wsapp.ws.use(route.all('/ws', function (ctx) {
         switch (cmd) {
             case 'upload':
                 console.log('upload');
+
+                filewriter.writeToSMB(msgObj, '', function(i) {
+                    return {
+                        uid: mockUID(),
+                        origin: i.origin,
+                        name: i.name,
+                        status: 0
+                    }
+                });
+
                 var list = msgObj.opt.list || []
                 list = list.map(i => {
                     return {
