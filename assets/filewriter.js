@@ -40,6 +40,7 @@ module.exports = {
                         } else {
                             const stats = fs.statSync(item.origin);
                             ret.total = stats.size;
+                            console.log(stats.size);
                             let rStream = fs.createReadStream(item.origin);
                             let filenamne =
                                 item.name ||
@@ -69,10 +70,11 @@ module.exports = {
 
                             let acc = 0;
                             rStream.on('data', function(data) {
-                                acc += data.length || 0;
+                                acc += data.length;
                                 ret.trxed = acc;
                                 ret.status = 1;
                                 ret.progress = Math.floor(acc / ret.total) || 1;
+
                             });
                             ret.status = 1;
                             rStream.pipe(
@@ -88,8 +90,9 @@ module.exports = {
             let timer = setInterval(function() {
                 console.log('timer runs');
                 cb(Object.values(result));
-            }, 1000);
+            }, 500);
             lanes.push(opChain);
+            console.log('Lanes: ', lanes.length)
             Promise.all(lanes).then(function() {
                 clearInterval(timer);
                 console.log('timer runs');

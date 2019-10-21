@@ -20,10 +20,14 @@ wsapp.ws.use(function(ctx, next) {
     - 1        OPEN            WebSocket的链接已经建立
     - 2        CLOSING            连接正在关闭
     - 3        CLOSED            连接已经关闭或不可用
+    const readyStates = ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'];
 */
+
+let vno = null;
 wsapp.ws.use(
     route.all('/ws', function(ctx) {
         let ws = ctx.websocket;
+        vno = ws;
         ws.watched = [];
         ws.fileList = []; // || mockFileList();
         ws.sendMessage = function(data) {
@@ -85,37 +89,17 @@ wsapp.ws.use(
                     console.log('watch');
                     // 遍历当前传输列表, 插入该项
                     var { list = [], interval = 500 } = msgObj && msgObj.opt;
-                    console.log(list);
                     if (list.length > 0) {
                         let newFile = null;
                         list.forEach(i => {
-                            console.log(i);
                             newFile = watched.find(w => w.origin === i.origin);
-                            if (!newFile) {
-                                newWatched.push(
-                                    Object.assign(i, {
-                                        trxed: 0,
-                                        total: 10000 * Math.random()
-                                    })
-                                );
+                            if (newFile) {
+                                newWatched.push(newFile);
                             }
                         });
                     } else {
-                        ws.fileList.map(f => {
-                            if (f.trxed < f.total) {
-                                newWatched.push(
-                                    Object.assign(f, {
-                                        trxed: 0,
-                                        total: 10000 * Math.random()
-                                    })
-                                );
-                            }
-                        });
+                        newWatched = ws.fileList.splice(0); // clone the fileList
                     }
-                    console.log('heya----------');
-                    console.log(ws.fileList);
-                    console.log(newWatched);
-                    console.log('----------yahe');
                     ws.watched = newWatched; //watched.concat(newWatched)
                     // ws.watched = [...watched, ...newWatched];
                     initTrxQue(newWatched, interval, ws, message);
@@ -153,6 +137,7 @@ wsapp.ws.use(
                     break;
                 case 'close':
                     console.log('close: ');
+                    ws.close();
                     break;
                 default:
                     console.log(message);
@@ -219,15 +204,15 @@ function initTrxQue(watchedFileList, interval, ws, message = '') {
     function heartBeat() {
         ws.timer = setTimeout(function() {
             watchedFileList.map(f => {
-                let percent = f.trxed / f.total;
+                // let percent = f.trxed / f.total;
 
-                let untrxed = f.total - f.trxed;
-                if (percent < 0.95) {
-                    f.trxed += untrxed / 10;
-                } else {
-                    f.trxed = f.total;
-                    ws.cnt++;
-                }
+                // let untrxed = f.total - f.trxed;
+                // if (percent < 0.95) {
+                //     f.trxed += untrxed / 10;
+                // } else {
+                //     f.trxed = f.total;
+                ws.cnt++;
+                // }
             });
             let ret = {
                 cmd: 'watch',
