@@ -10,12 +10,15 @@
   "author": "vno <volving@icloud.com> (http://vno.io)",
   "license": "MIT",
   "dependencies": {
+    "@juangm/samba-client": "^1.6.0",
     "@marsaud/smb2": "^0.14.0",
     "awesome-static": "^1.4.3",
     "koa-route": "^3.2.0",
     "koa-static": "^5.0.0",
     "koa-websocket": "^5.0.1",
     "koa2": "^2.0.0-alpha.7",
+    "mount-js": "0.0.9",
+    "samba-client": "^2.1.0",
     "socket.io": "^2.2.0"
   }
 }
