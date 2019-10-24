@@ -13,6 +13,7 @@
     "@juangm/samba-client": "^1.6.0",
     "@marsaud/smb2": "^0.14.0",
     "awesome-static": "^1.4.3",
+    "drivelist": "^8.0.7",
     "koa-route": "^3.2.0",
     "koa-static": "^5.0.0",
     "koa-websocket": "^5.0.1",
