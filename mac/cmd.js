@@ -7,6 +7,7 @@ const { host, share, username, password } = config;
 
 let { macMountPoint } = config;
 macMountPoint = path.resolve(os.homedir(), macMountPoint);
+
 function checkMountPoint() {
     fs.access(macMountPoint, err => {
         if (err) {
@@ -41,6 +42,11 @@ module.exports = function mountFS() {
             }
         };
     } else {
+        if (checkMountPoint()) {
+            mount({ host, share, username, password, macMountPoint });
+        }
+    }
+    if (!ret) {
         if (checkMountPoint()) {
             mount({ host, share, username, password, macMountPoint });
         }

@@ -14,3 +14,10 @@ const record = {
         }
     ]
 };
+
+const {
+    basePath, umount
+} = switch (process.platform) {
+    case 'win32':
+        return require
+}

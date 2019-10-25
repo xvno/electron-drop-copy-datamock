@@ -3,5 +3,6 @@ module.exports = {
     share: 'alice',
     password: 'Qwer_1234',
     username: 'alice',
-    macMountPoint: '._MOVTILE_SMB_001'
+    macMountPoint: '._MOVTILE_SMB_001',
+    mountPoint: '._MOVTILE_SMB_001'
 };
