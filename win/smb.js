@@ -1,17 +1,14 @@
-const conf = require('../config/smb.conf.js');
 const cp = require('child_process');
-let { username, password, host, share } = conf;
 const drivelist = require('drivelist');
+let { username, password, host, share } = conf;
+const conf = require('../config/smb.conf.js');
 
 let mounted = [];
 let lastLtr = '';
-const LETTERS = 'qwrtuiopshjklvnm'
-    .toUpperCase()
-    .split('')
-    .map(i => `${i}:`);
+const LETTERS = 'qwrtuiopshjklvnm'.toUpperCase().split('').map(i => `${i}:`);
 
-function getAvailableLtr() {
-    let driveLtrs = getDriveLtrs();
+async function getAvailableLtr() {
+    let driveLtrs = await getDriveLtrs();
     let availables = LETTERS.filter(i => {
         if (driveLtrs.indexOf(i) === -1) {
             return true;
@@ -19,14 +16,14 @@ function getAvailableLtr() {
     });
     return availables;
 }
-function getLastAvailableLtr() {
-    let availables = getAvailableLtr();
+async function getLastAvailableLtr() {
+    let availables = await getAvailableLtr();
     let len = availables.length;
     lastLtr = availables[len - 1];
     return lastLtr;
 }
-function getMountCMD() {
-    let ltr = getLastAvailableLtr();
+async function getMountCMD() {
+    let ltr = await getLastAvailableLtr();
     return `net use ${ltr} \\\\${host}\\${share} ${password} /user:${username}`;
 }
 
@@ -37,9 +34,9 @@ function getUmountCMD(ltr) {
 /**
  * Mount smb to local folder/DiskLtr
  */
-function mount() {
+async function mount() {
     try {
-        cp.execSync(getMountCMD());
+        cp.execSync(await getMountCMD());
         return {
             mountPoint: lastLtr,
             umount: getUmountFn(lastLtr)
@@ -91,8 +88,8 @@ async function checkMounted() {
     return mounted;
 }
 
-module.exports = function mountFS() {
-    let mounted = checkMounted();
+module.exports = async function mountFS() {
+    mounted = await checkMounted();
     if (mounted.length === 0) {
         return mount();
     } else {
