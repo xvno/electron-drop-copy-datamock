@@ -1,12 +1,10 @@
 const CP = require('child_process');
 const drivelist = require('drivelist');
 
+const conf = require('../config/smb.conf.js')
 
 
-const host = '10.10.1.99';
-const share = 'alice';
-const password = 'Qwer_1234';
-const username = 'alice';
+let { host, share, username, password } = const ;
 
 let driveLtr = getDriveLtrs()[0]||'V:';
 
