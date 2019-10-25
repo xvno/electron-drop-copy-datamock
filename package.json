@@ -21,5 +21,8 @@
     "mount-js": "0.0.9",
     "samba-client": "^2.1.0",
     "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.5.1"
   }
 }
