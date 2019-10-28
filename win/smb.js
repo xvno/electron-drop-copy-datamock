@@ -1,11 +1,14 @@
 const cp = require('child_process');
 const drivelist = require('drivelist');
-let { username, password, host, share } = conf;
 const conf = require('../config/smb.conf.js');
+let { username, password, host, share } = conf;
 
 let mounted = [];
 let lastLtr = '';
-const LETTERS = 'qwrtuiopshjklvnm'.toUpperCase().split('').map(i => `${i}:`);
+const LETTERS = 'qwrtuiopshjklvnm'
+    .toUpperCase()
+    .split('')
+    .map(i => `${i}:`);
 
 async function getAvailableLtr() {
     let driveLtrs = await getDriveLtrs();
@@ -16,12 +19,14 @@ async function getAvailableLtr() {
     });
     return availables;
 }
+
 async function getLastAvailableLtr() {
     let availables = await getAvailableLtr();
     let len = availables.length;
     lastLtr = availables[len - 1];
     return lastLtr;
 }
+
 async function getMountCMD() {
     let ltr = await getLastAvailableLtr();
     return `net use ${ltr} \\\\${host}\\${share} ${password} /user:${username}`;
@@ -45,6 +50,7 @@ async function mount() {
         console.log(err);
     }
 }
+
 function getUmountFn(ltr) {
     let cmd = getUmountCMD(ltr);
     return function umount() {

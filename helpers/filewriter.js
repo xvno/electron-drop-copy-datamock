@@ -1,7 +1,8 @@
 const fs = require('fs');
 const baseDir = '/Users/volving/Downloads/__smb__/';
 const path = require('path');
-const { mockUID, mockFileList } = require('../utils/mtools');
+// const { mockUID, mockFileList } = require('../utils/mtools');
+const uid = require('uid-safe');
 
 module.exports = {
     writeToSMB: function(msgObj, dest, cb) {
@@ -12,7 +13,7 @@ module.exports = {
         let lanes = [];
         list.forEach(item => {
             let ret = {
-                uid: mockUID(),
+                uid: uid.sync(32),
                 origin: item.origin,
                 name: item.name,
                 status: 0,
@@ -74,7 +75,6 @@ module.exports = {
                                 ret.trxed = acc;
                                 ret.status = 1;
                                 ret.progress = Math.floor(acc / ret.total) || 1;
-
                             });
                             ret.status = 1;
                             rStream.pipe(
@@ -92,7 +92,7 @@ module.exports = {
                 cb(Object.values(result));
             }, 500);
             lanes.push(opChain);
-            console.log('Lanes: ', lanes.length)
+            console.log('Lanes: ', lanes.length);
             Promise.all(lanes).then(function() {
                 clearInterval(timer);
                 console.log('timer runs');

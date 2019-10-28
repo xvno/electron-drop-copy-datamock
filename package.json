@@ -20,7 +20,8 @@
     "koa2": "^2.0.0-alpha.7",
     "mount-js": "0.0.9",
     "samba-client": "^2.1.0",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "uid-safe": "^2.1.5"
   },
   "devDependencies": {
     "eslint": "^6.5.1"
