@@ -19,7 +19,7 @@
     "koa-websocket": "^5.0.1",
     "koa2": "^2.0.0-alpha.7",
     "mount-js": "0.0.9",
-    "samba-client": "^2.1.0",
+    "samba-client": "^4.0.0",
     "socket.io": "^2.2.0",
     "uid-safe": "^2.1.5"
   },
